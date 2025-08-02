@@ -1,0 +1,111 @@
+
+Answer: Product Dashboard using DummyJSON & Firebase
+
+1. Dashboard Overview Page (from DummyJSON)
+
+we need to fetch and display products from https://dummyjson.com/products in card format.
+
+ Code:
+
+let products = [];
+let currentPage = 1;
+let limit = 10;
+
+async function fetchProducts(page = 1) {
+  const skip = (page - 1) * limit;
+  const res = await fetch(`https://dummyjson.com/products?limit=${limit}&skip=${skip}`);
+  const data = await res.json();
+  products = data.products;
+  renderProducts(products);
+}
+
+function renderProducts(products) {
+  document.getElementById("productContainer").innerHTML = products.map(p => `
+    <div class="card">
+      <img src="${p.thumbnail}" />
+      <h3>${p.title}</h3>
+      <p>${p.description}</p>
+      <p>₹${p.price}</p>
+    </div>
+  `).join('');
+}
+
+fetchProducts();
+
+
+
+2. Add Product Form (Store to Firebase)
+
+✅ Firebase POST Code:
+
+async function addProductToFirebase(product) {
+  await fetch('https://your-firebase.firebaseio.com/products.json', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(product)
+  });
+}
+
+
+3. View Products from Firebase
+
+Fetch data using GET request and render it similarly to DummyJSON.
+
+ Code:
+ 
+async function fetchFirebaseProducts() {
+  const res = await fetch('https://your-firebase.firebaseio.com/products.json');
+  const data = await res.json();
+  const productList = Object.entries(data).map(([id, item]) => ({ id, ...item }));
+  renderFirebaseProducts(productList);
+}
+
+ 4. Delete and Update Products in Firebase
+
+ Delete:
+function deleteProduct(id) {
+  fetch(`https://your-firebase.firebaseio.com/products/${id}.json`, {
+    method: 'DELETE'
+  });
+}
+
+   Update:
+function updateProduct(id, updatedData) {
+  fetch(`https://your-firebase.firebaseio.com/products/${id}.json`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updatedData)
+  });
+}
+
+5. Search Functionality on Listing Page
+
+function searchProducts(query) {
+  const filtered = products.filter(p => p.title.toLowerCase().includes(query.toLowerCase()));
+  renderProducts(filtered);
+}
+Call this function on keyup in search input.
+
+Bonus (Optional)
+
+Add loader while fetching data
+Show toasts or alerts on success/failure
+ Example:
+function showToast(message, type) {
+  alert(`${type.toUpperCase()}: ${message}`);
+}
+
+📦 Summary of Features:
+Feature	Tech / Method Used
+Product listing	fetch() from DummyJSON
+Sorting & Filtering	Array.sort(), Array.filter(), localStorage
+Pagination	limit & skip parameters
+Add product to Firebase	Firebase Realtime DB + POST
+View Firebase products	Firebase + GET
+Delete product from Firebase	Firebase + DELETE
+Update product in Firebase	Firebase + PATCH
+Search	Array.filter()
+Bonus: Toasts/Loaders	alert(), or UI loaders
+Would you like the full HTML + JS code file to directly implement this? I can give you that too.
